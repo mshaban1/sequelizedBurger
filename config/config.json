@@ -18,6 +18,7 @@
     "password": "xki93qsvph4ptiwx",
     "database": "ezg08pbpdxugbq0g",
     "host": "ffn96u87j5ogvehy.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-    "dialect": "mysql://cr5owcnpq81wfih9:xki93qsvph4ptiwx@ffn96u87j5ogvehy.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/ezg08pbpdxugbq0g"
+    "dialect": "mysql"
   }
 }
+
