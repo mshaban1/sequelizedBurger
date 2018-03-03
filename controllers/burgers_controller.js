@@ -1,52 +1,65 @@
-
-//dependencies
-const express = require('express');
-const methodOverride = require('method-override');
-const bodyParser = require('body-parser');
-const router = express.Router();
-const burger = require('../models/burger.js')
-
-//redirect to burger route by default
-router.get('/', function(req, res) {
-    res.redirect('/burgers');
-});
-
-//when directed to burgers route, get burger.js logic, call functions within it. 
-router.get('/burgers', function(req, res) {
-    burger.selectAll(function(data) {
-        //when called (it's never called) render response through index.handlebars
-        res.render('index', { burgers: data });
+var db = require("../models");
+// Export these awesome routes
+module.exports = function (app) {
+    // Get the root route
+    app.get("/", function (req, res) {
+        db.Burger.findAll({}).then(function (result) {
+            // define two categories of burgers
+            var uneaten = [];
+            var eaten = [];
+            for (var i = 0; i < result.length; i++) {
+                if (result[i].devoured) {
+                    eaten.push(result[i]);
+                } else {
+                    uneaten.push(result[i]);
+                }
+            }
+            // Sends both data types to respective handlebars tags
+            return res.render("index", {
+                eaten: eaten,
+                uneaten: uneaten
+            });
+        });
     });
-});
-
-//when route is burger/create run function
-router.post('/burgers/create', function(req, res) {
-    //call burger logic insertOne function(column,data,callback);
-    burger.insertOne('burger_name', req.body.name, function() {
-        //redirect to updated main page after insertOne
-        res.redirect('/burgers');
-    })
-})
-
-//update route
-router.put('/burgers/update/devour/:id', function(req, res) {
-    //tableName, column, ID, callback
-    burger.updateOne('burgers','devoured', req.params.id, function() {
-        //redirect to home upon response
-        res.redirect('/burgers');
-    })
-})
-//delete method available because method override
-router.delete('/burgers/delete/:id', function(req, res) {
-    //run burger.js logic of deleteOne(table,id,callback)
-    burger.deleteOne('burgers',req.params.id, function() {
-        //upon delete, redirect home
-        res.redirect('/burgers');
-    })
-})
-//initial load/direct
-router.use(function(req, res) {
-    res.redirect('/burgers');
-})
-//export
-module.exports = router;
+    // Gets the API route, which displays All burgers or One burger
+    app.get("/api/burgers/:id?", function (req, res) {
+        // If the user provides a specific character in the URL...
+        if (req.params.id) {
+            db.Burger.findOne({
+                where: {
+                    id: req.params.id
+                }
+            }).then(function (result) {
+                return res.json(result);
+            });
+        } else {
+            // Otherwise display the data for all of the characters.
+            db.Burger.findAll({}).then(function (result) {
+                return res.json(result);
+            });
+        }
+    });
+    // Post for creating burger
+    app.post('/', function (req, res) {
+        var newBurg = req.body;
+        // Makes sure something is inputed
+        db.Burger.create({
+            burger_name: newBurg.foo
+        }).then(function (result) {
+            res.redirect('/');
+        });
+    });
+    // Defines the updates for when burgers are "devoured"
+    app.put('/:id', function (req, res) {
+        var selectBurg = req.params.id;
+        db.Burger.update({
+            devoured: true
+        }, {
+            where: {
+                id: selectBurg
+            }
+        }).then(function (result) {
+            res.redirect('/');
+        });
+    });
+};

@@ -1,2 +1,2 @@
-# Burger
-Week 14 Homework - Handlebars, Express, Node , Mysql
+# SequelizedBurger
+Week 15 Homework - sequelize ,Handlebars, Express, Node , Mysql
